@@ -1,0 +1,116 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package btc;
+
+import java.io.BufferedWriter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import org.semanticweb.yars.nx.Node;
+import org.semanticweb.yars.nx.NodeComparator;
+import org.semanticweb.yars.nx.Resource;
+import org.semanticweb.yars.nx.Variable;
+import org.semanticweb.yars.nx.parser.NxParser;
+
+/**
+ *
+ * @author sohdeh
+ */
+public class simulatedJoin {
+    public static void main(String[] args) {
+        try {
+            OutputStream osj = new FileOutputStream("G://josirefs/hybridsparql/bsbmtools-0.2/joinres.nq");
+            BufferedWriter bwj = new BufferedWriter(new OutputStreamWriter(osj));
+            
+            //if predicate and object were similar we have a triple pattern match regardless of subject value
+            Comparator<Node[]> var = new Comparator<Node[]>() {
+                    public int compare(Node[] o1, Node[] o2) {
+                        int diff =0; 
+                        //just need to compare predicate=2 and object=3
+                        for(int i=1; i< o1.length-1;i++){
+                        diff = o1[i].toString().trim().compareTo(o2[i].toString().trim()); 
+                        if(diff!=0) return diff;
+                        }
+                        return diff;                        
+                    }
+                };            
+            //<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www4.wiwiss.fu-berlin.de/bizer/bsbm/v01/vocabulary/ProductType> "false" .
+
+            Node [] pattern1 = {new Variable("s"), new Resource("http://www4.wiwiss.fu-berlin.de/bizer/bsbm/v01/vocabulary/country"), new Resource("http://downlode.org/rdf/iso-3166/countries#US"), new Variable("c")};
+            Node [] pattern2 = {new Variable("s"), new Resource("http://www4.wiwiss.fu-berlin.de/bizer/bsbm/v01/vocabulary/product"), new Resource("http://www4.wiwiss.fu-berlin.de/bizer/bsbm/v01/instances/dataFromProducer1/Product1"), new Variable("c")};
+            Node [] pattern3 = {new Variable("s"), new Resource("http://www4.wiwiss.fu-berlin.de/bizer/bsbm/v01/vocabulary/vendor"), new Resource("http://www4.wiwiss.fu-berlin.de/bizer/bsbm/v01/instances/dataFromVendor2/Vendor2"), new Variable("c")};
+            Node [] pattern4 = {new Variable("s"), new Resource("http://purl.org/dc/elements/1.1/publisher"), new Resource("http://www4.wiwiss.fu-berlin.de/bizer/bsbm/v01/instances/dataFromVendor2/Vendor2"), new Variable("c")};
+            
+            
+            HashMap phm1=new HashMap();
+            int tp1f=0,tp1t=0;
+            HashMap phm2=new HashMap();
+            int tp2f=0,tp2t=0;
+            HashMap phm3=new HashMap();
+            int tp3f=0,tp3t=0;
+            HashMap phm4=new HashMap();
+            int tp4f=0,tp4t=0;
+            //Retrive matches to triple pattern and keep them in phm1..4 we keep the subject as key since we are sure that if 2 patterns match and their
+            //corresponding subject were also similar then they are actually the same
+            InputStream is = new FileInputStream("G://josirefs/hybridsparql/bsbmtools-0.2/datasetvalidp2.nq");            
+            NxParser nxp = new NxParser(is);
+            while (nxp.hasNext()) {
+                Node[] next = nxp.next();
+                if (var.compare(next, pattern1) == 0) {
+                    //we have a match
+                    System.out.println(next[3].toString().trim());
+                    if(next[3].toString().trim().equalsIgnoreCase("false")) tp1f++;
+                    if(next[3].toString().trim().equalsIgnoreCase("true"))  tp1t++;
+                    phm1.put(next[0], next);
+                }
+                if (var.compare(next, pattern2) == 0) {
+                    if(next[3].toString().trim().equalsIgnoreCase("false")) tp2f++;
+                    if(next[3].toString().trim().equalsIgnoreCase("true"))  tp2t++;
+                    phm2.put(next[0], next);
+                }
+                if (var.compare(next, pattern3) == 0) {
+                    if(next[3].toString().trim().equalsIgnoreCase("false")) tp3f++;
+                    if(next[3].toString().trim().equalsIgnoreCase("true"))  tp3t++;
+                    phm3.put(next[0], next);
+                }
+                if (var.compare(next, pattern4) == 0) {
+                    if(next[3].toString().trim().equalsIgnoreCase("false")) tp4f++;
+                    if(next[3].toString().trim().equalsIgnoreCase("true"))  tp4t++;
+                    phm4.put(next[0], next);
+                }                
+            }
+            System.out.println(pattern1[1].toString()+" "+pattern1[2].toString() +" fresh "+tp1t+"  stale "+tp1f);
+            System.out.println(pattern2[1].toString()+" "+pattern2[2].toString() + " fresh "+tp2t+" stale "+tp2f);
+            System.out.println(pattern3[1].toString()+" "+pattern3[2].toString() + " fresh "+tp3t+"  stale "+tp3f);
+            System.out.println(pattern4[1].toString() +" "+pattern4[2].toString()+ " fresh "+tp4t+"  stale "+tp4f);
+            //join phm1 and phm4
+            Iterator pit1 = phm1.keySet().iterator();
+            
+             while (pit1.hasNext()) {
+                Node fpi = (Node) pit1.next();
+                Iterator pit4 = phm4.keySet().iterator();
+                while (pit4.hasNext()) {
+                    Node spi = (Node) pit4.next();
+                    if (fpi.toString().trim().equalsIgnoreCase(spi.toString().trim())) {
+                        Node[] fpmatch = (Node[]) phm1.get(fpi);
+                        Node[] spmatch = (Node[]) phm4.get(spi);
+                        boolean b1 = Boolean.parseBoolean(fpmatch[3].toString());
+                        boolean b2 = Boolean.parseBoolean(spmatch[3].toString());
+                        boolean b3 = b1 && b2;
+                        bwj.write(fpmatch[0].toString() + " , " + fpmatch[2].toString() + " , " + spmatch[2].toString() + " , " + b3 + "\n");
+                    }
+                }
+            }
+            bwj.flush();
+            bwj.close();
+            
+        }catch(Exception e){e.printStackTrace();}
+    }
+}
