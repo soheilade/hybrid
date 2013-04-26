@@ -23,30 +23,53 @@ import org.semanticweb.yars.nx.parser.NxParser;
  *
  * @author sohdeh
  */
+
 public class simulatedJoin {
+    
     public static void main(String[] args) {
         try {
             OutputStream osj = new FileOutputStream("G://josirefs/hybridsparql/bsbmtools-0.2/joinres.nq");
             BufferedWriter bwj = new BufferedWriter(new OutputStreamWriter(osj));
-            
+            //myJoin m_join=new myJoin();
             //if predicate and object were similar we have a triple pattern match regardless of subject value
+            
             Comparator<Node[]> var = new Comparator<Node[]>() {
-                    public int compare(Node[] o1, Node[] o2) {
-                        int diff =0; 
-                        //just need to compare predicate=2 and object=3
-                        for(int i=1; i< o1.length-1;i++){
-                        diff = o1[i].toString().trim().compareTo(o2[i].toString().trim()); 
-                        if(diff!=0) return diff;
+                public int compare(Node[] o1, Node[] o2) {
+                    int diff = 0;
+                    //just need to compare predicate=2 and object=3
+                    for (int i = 1; i < o1.length - 1; i++) {
+                        diff = o1[i].toString().trim().compareTo(o2[i].toString().trim());
+                        if (diff != 0) {
+                            return diff;
                         }
-                        return diff;                        
                     }
-                };            
+                    return diff;
+                }
+            };
+            Comparator<Node[]> varpred = new Comparator<Node[]>() {
+                public int compare(Node[] o1, Node[] o2) {
+                    return o1[1].toString().trim().compareTo(o2[1].toString().trim());
+                }
+            };
             //<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www4.wiwiss.fu-berlin.de/bizer/bsbm/v01/vocabulary/ProductType> "false" .
 
             Node [] pattern1 = {new Variable("s"), new Resource("http://www4.wiwiss.fu-berlin.de/bizer/bsbm/v01/vocabulary/country"), new Resource("http://downlode.org/rdf/iso-3166/countries#US"), new Variable("c")};
             Node [] pattern2 = {new Variable("s"), new Resource("http://www4.wiwiss.fu-berlin.de/bizer/bsbm/v01/vocabulary/product"), new Resource("http://www4.wiwiss.fu-berlin.de/bizer/bsbm/v01/instances/dataFromProducer1/Product1"), new Variable("c")};
             Node [] pattern3 = {new Variable("s"), new Resource("http://www4.wiwiss.fu-berlin.de/bizer/bsbm/v01/vocabulary/vendor"), new Resource("http://www4.wiwiss.fu-berlin.de/bizer/bsbm/v01/instances/dataFromVendor2/Vendor2"), new Variable("c")};
             Node [] pattern4 = {new Variable("s"), new Resource("http://purl.org/dc/elements/1.1/publisher"), new Resource("http://www4.wiwiss.fu-berlin.de/bizer/bsbm/v01/instances/dataFromVendor2/Vendor2"), new Variable("c")};
+            Node [] pattern5 = {new Variable("s"), new Resource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), new Resource("http://www4.wiwiss.fu-berlin.de/bizer/bsbm/v01/vocabulary/Review"), new Variable("c")};
+            Node [] pattern6 = {new Variable("s"), new Resource("http://purl.org/stuff/rev#reviewer"), new Resource("http://www4.wiwiss.fu-berlin.de/bizer/bsbm/v01/instances/dataFromRatingSite1/Reviewer3"), new Variable("c")};
+            Node [] pattern7 = {new Variable("s"), new Resource("http://www4.wiwiss.fu-berlin.de/bizer/bsbm/v01/vocabulary/rating1"), new Resource("3"), new Variable("c")};
+            Node [] pattern8 = {new Variable("s"), new Resource("http://www4.wiwiss.fu-berlin.de/bizer/bsbm/v01/vocabulary/rating2"), new Resource("3"), new Variable("c")};
+            Node [] pattern9 = {new Variable("s"), new Resource("http://www4.wiwiss.fu-berlin.de/bizer/bsbm/v01/vocabulary/rating3"), new Resource("3"), new Variable("c")};
+            Node [] pattern10 = {new Variable("s"), new Resource("http://www4.wiwiss.fu-berlin.de/bizer/bsbm/v01/vocabulary/rating4"), new Resource("3"), new Variable("c")};
+            Node [] pattern11 = {new Variable("s"), new Resource("http://www4.wiwiss.fu-berlin.de/bizer/bsbm/v01/vocabulary/productPropertyNumeric1"), new Resource("3"), new Variable("c")};
+            Node [] pattern12 = {new Variable("s"), new Resource("http://www4.wiwiss.fu-berlin.de/bizer/bsbm/v01/vocabulary/productPropertyNumeric2"), new Resource("3"), new Variable("c")};
+            Node [] pattern13 = {new Variable("s"), new Resource("http://www4.wiwiss.fu-berlin.de/bizer/bsbm/v01/vocabulary/productPropertyNumeric3"), new Resource("3"), new Variable("c")};
+            Node [] pattern14 = {new Variable("s"), new Resource("http://www4.wiwiss.fu-berlin.de/bizer/bsbm/v01/vocabulary/productPropertyNumeric4"), new Resource("3"), new Variable("c")};
+            Node [] pattern15 = {new Variable("s"), new Resource("http://www4.wiwiss.fu-berlin.de/bizer/bsbm/v01/vocabulary/productPropertyNumeric5"), new Resource("3"), new Variable("c")};
+            Node [] pattern16 = {new Variable("s"), new Resource("http://www4.wiwiss.fu-berlin.de/bizer/bsbm/v01/vocabulary/productPropertyNumeric6"), new Resource("3"), new Variable("c")};
+            
             
             
             HashMap phm1=new HashMap();
@@ -57,10 +80,36 @@ public class simulatedJoin {
             int tp3f=0,tp3t=0;
             HashMap phm4=new HashMap();
             int tp4f=0,tp4t=0;
+            HashMap phm5=new HashMap();
+            int tp5f=0,tp5t=0;
+            HashMap phm6=new HashMap();
+            int tp6f=0,tp6t=0;
+            HashMap phm7=new HashMap();
+            int tp7f=0,tp7t=0;
+            HashMap phm8=new HashMap();
+            int tp8f=0,tp8t=0;
+            HashMap phm9=new HashMap();
+            int tp9f=0,tp9t=0;
+            HashMap phm10=new HashMap();
+            int tp10f=0,tp10t=0;
+            HashMap phm11=new HashMap();
+            int tp11f=0,tp11t=0;
+            HashMap phm12=new HashMap();
+            int tp12f=0,tp12t=0;
+            HashMap phm13=new HashMap();
+            int tp13f=0,tp13t=0;
+            HashMap phm14=new HashMap();
+            int tp14f=0,tp14t=0;            
+            HashMap phm15=new HashMap();
+            int tp15f=0,tp15t=0;
+            HashMap phm16=new HashMap();
+            int tp16f=0,tp16t=0;
             //Retrive matches to triple pattern and keep them in phm1..4 we keep the subject as key since we are sure that if 2 patterns match and their
             //corresponding subject were also similar then they are actually the same
-            InputStream is = new FileInputStream("G://josirefs/hybridsparql/bsbmtools-0.2/datasetvalidp2.nq");            
-            NxParser nxp = new NxParser(is);
+            String nxpath="G://josirefs/hybridsparql/bsbmtools-0.2/datasetvalidp2.nq";
+            try{InputStream is = new FileInputStream(nxpath);            
+            NxParser nxp = new NxParser(is);            
+                        
             while (nxp.hasNext()) {
                 Node[] next = nxp.next();
                 if (var.compare(next, pattern1) == 0) {
@@ -84,15 +133,96 @@ public class simulatedJoin {
                     if(next[3].toString().trim().equalsIgnoreCase("false")) tp4f++;
                     if(next[3].toString().trim().equalsIgnoreCase("true"))  tp4t++;
                     phm4.put(next[0], next);
-                }                
+                }   
+                if (var.compare(next, pattern5) == 0) {
+                    if(next[3].toString().trim().equalsIgnoreCase("false")) tp5f++;
+                    if(next[3].toString().trim().equalsIgnoreCase("true"))  tp5t++;
+                    phm5.put(next[0], next);
+                }  
+                if (var.compare(next, pattern6) == 0) {
+                    if(next[3].toString().trim().equalsIgnoreCase("false")) tp6f++;
+                    if(next[3].toString().trim().equalsIgnoreCase("true"))  tp6t++;
+                    phm6.put(next[0], next);
+                } 
+                if (varpred.compare(next, pattern7) == 0) {
+                    if(next[3].toString().trim().equalsIgnoreCase("false")) tp7f++;
+                    if(next[3].toString().trim().equalsIgnoreCase("true"))  tp7t++;
+                    if(Integer.parseInt(next[2].toString())>3)
+                        phm7.put(next[0], next);
+                }  
+                if (varpred.compare(next, pattern8) == 0) {
+                    if(next[3].toString().trim().equalsIgnoreCase("false")) tp8f++;
+                    if(next[3].toString().trim().equalsIgnoreCase("true"))  tp8t++;
+                    if(Integer.parseInt(next[2].toString())>3)
+                        phm8.put(next[0], next);
+                } 
+                if (varpred.compare(next, pattern9) == 0) {
+                    if(next[3].toString().trim().equalsIgnoreCase("false")) tp9f++;
+                    if(next[3].toString().trim().equalsIgnoreCase("true"))  tp9t++;
+                    if(Integer.parseInt(next[2].toString())>3)
+                        phm9.put(next[0], next);
+                }  
+                if (varpred.compare(next, pattern10) == 0) {
+                    if(next[3].toString().trim().equalsIgnoreCase("false")) tp10f++;
+                    if(next[3].toString().trim().equalsIgnoreCase("true"))  tp10t++;
+                    if(Integer.parseInt(next[2].toString())>3)
+                        phm10.put(next[0], next);
+                }  
+                if (varpred.compare(next, pattern11) == 0) {
+                    if(next[3].toString().trim().equalsIgnoreCase("false")) tp11f++;
+                    if(next[3].toString().trim().equalsIgnoreCase("true"))  tp11t++;
+                    if(Integer.parseInt(next[2].toString())>100)
+                        phm11.put(next[0], next);
+                }
+                if (varpred.compare(next, pattern12) == 0) {
+                    if(next[3].toString().trim().equalsIgnoreCase("false")) tp12f++;
+                    if(next[3].toString().trim().equalsIgnoreCase("true"))  tp12t++;
+                    if(Integer.parseInt(next[2].toString())>100)
+                        phm12.put(next[0], next);
+                } 
+                if (varpred.compare(next, pattern13) == 0) {
+                    if(next[3].toString().trim().equalsIgnoreCase("false")) tp13f++;
+                    if(next[3].toString().trim().equalsIgnoreCase("true"))  tp13t++;
+                    if(Integer.parseInt(next[2].toString())>100)
+                        phm13.put(next[0], next);
+                } 
+                if (varpred.compare(next, pattern14) == 0) {
+                    if(next[3].toString().trim().equalsIgnoreCase("false")) tp14f++;
+                    if(next[3].toString().trim().equalsIgnoreCase("true"))  tp14t++;
+                    if(Integer.parseInt(next[2].toString())>100)
+                        phm14.put(next[0], next);
+                }  
+                if (varpred.compare(next, pattern15) == 0) {
+                    if(next[3].toString().trim().equalsIgnoreCase("false")) tp15f++;
+                    if(next[3].toString().trim().equalsIgnoreCase("true"))  tp15t++;
+                    if(Integer.parseInt(next[2].toString())>100)
+                        phm15.put(next[0], next);
+                }  
+                if (varpred.compare(next, pattern16) == 0) {
+                    if(next[3].toString().trim().equalsIgnoreCase("false")) tp16f++;
+                    if(next[3].toString().trim().equalsIgnoreCase("true"))  tp16t++;
+                    if(Integer.parseInt(next[2].toString())>100)
+                        phm16.put(next[0], next);
+                }  
             }
             System.out.println(pattern1[1].toString()+" "+pattern1[2].toString() +" fresh "+tp1t+"  stale "+tp1f);
             System.out.println(pattern2[1].toString()+" "+pattern2[2].toString() + " fresh "+tp2t+" stale "+tp2f);
             System.out.println(pattern3[1].toString()+" "+pattern3[2].toString() + " fresh "+tp3t+"  stale "+tp3f);
             System.out.println(pattern4[1].toString() +" "+pattern4[2].toString()+ " fresh "+tp4t+"  stale "+tp4f);
+            System.out.println(pattern5[1].toString() +" "+pattern5[2].toString()+ " fresh "+tp5t+"  stale "+tp5f);
+            System.out.println(pattern6[1].toString() +" "+pattern6[2].toString()+ " fresh "+tp6t+"  stale "+tp6f);
+            System.out.println(pattern7[1].toString() +" "+pattern7[2].toString()+ " fresh "+tp7t+"  stale "+tp7f);
+            System.out.println(pattern8[1].toString() +" "+pattern8[2].toString()+ " fresh "+tp8t+"  stale "+tp8f);
+            System.out.println(pattern9[1].toString() +" "+pattern9[2].toString()+ " fresh "+tp9t+"  stale "+tp9f);
+            System.out.println(pattern10[1].toString() +" "+pattern10[2].toString()+ " fresh "+tp10t+"  stale "+tp10f);
+            System.out.println(pattern11[1].toString() +" "+pattern11[2].toString()+ " fresh "+tp11t+"  stale "+tp11f);
+            System.out.println(pattern12[1].toString() +" "+pattern12[2].toString()+ " fresh "+tp12t+"  stale "+tp12f);
+            System.out.println(pattern13[1].toString() +" "+pattern13[2].toString()+ " fresh "+tp13t+"  stale "+tp13f);
+            System.out.println(pattern14[1].toString() +" "+pattern14[2].toString()+ " fresh "+tp14t+"  stale "+tp14f);
+            System.out.println(pattern15[1].toString() +" "+pattern15[2].toString()+ " fresh "+tp15t+"  stale "+tp15f);
+            System.out.println(pattern16[1].toString() +" "+pattern16[2].toString()+ " fresh "+tp16t+"  stale "+tp16f);
             //join phm1 and phm4
-            Iterator pit1 = phm1.keySet().iterator();
-            
+            Iterator pit1 = phm1.keySet().iterator();            
              while (pit1.hasNext()) {
                 Node fpi = (Node) pit1.next();
                 Iterator pit4 = phm4.keySet().iterator();
@@ -104,7 +234,52 @@ public class simulatedJoin {
                         boolean b1 = Boolean.parseBoolean(fpmatch[3].toString());
                         boolean b2 = Boolean.parseBoolean(spmatch[3].toString());
                         boolean b3 = b1 && b2;
-                        bwj.write(fpmatch[0].toString() + " , " + fpmatch[2].toString() + " , " + spmatch[2].toString() + " , " + b3 + "\n");
+                        //bwj.write(fpmatch[0].toString() + " , " + fpmatch[2].toString() + " , " + spmatch[2].toString() + " , " + b3 + "\n");
+                    }
+                }
+            }
+            //bwj.flush();
+            //bwj.close();
+            //join phm1 and phm4
+            Iterator pit9 = phm9.keySet().iterator();            
+             while (pit9.hasNext()) {
+                Node fpi = (Node) pit9.next();
+                Iterator pit7 = phm7.keySet().iterator();
+                while (pit7.hasNext()) {
+                    Node spi = (Node) pit7.next();
+                    if (fpi.toString().trim().equalsIgnoreCase(spi.toString().trim())) {
+                        Node[] fpmatch = (Node[]) phm9.get(fpi);
+                        Node[] spmatch = (Node[]) phm7.get(spi);
+                        boolean b1 = Boolean.parseBoolean(fpmatch[3].toString());
+                        boolean b2 = Boolean.parseBoolean(spmatch[3].toString());
+                        boolean b3 = b1 && b2;
+                        //bwj.write(fpmatch[0].toString() + " , " + fpmatch[2].toString() + " , " + spmatch[2].toString() + " , " + b3 + "\n");
+                    }
+                }
+            }
+            //bwj.flush();
+            //bwj.close();
+            //join phm1 and phm4
+            Iterator pit11 = phm11.keySet().iterator();            
+             while (pit11.hasNext()) {
+                Node fpi = (Node) pit11.next();
+                Iterator pit12 = phm12.keySet().iterator();
+                while (pit12.hasNext()) {
+                    Node spi = (Node) pit12.next();
+                    Iterator pit13 = phm13.keySet().iterator();
+                    while (pit13.hasNext()) {
+                        Node tpi = (Node) pit13.next();
+                        if (fpi.toString().trim().equalsIgnoreCase(spi.toString().trim())&& fpi.toString().trim().equalsIgnoreCase(tpi.toString().trim())) {
+                            Node[] fpmatch = (Node[]) phm11.get(fpi);
+                            Node[] spmatch = (Node[]) phm12.get(spi);
+                            Node[] tpmatch = (Node[]) phm13.get(tpi);
+                            boolean b1 = Boolean.parseBoolean(fpmatch[3].toString());
+                            boolean b2 = Boolean.parseBoolean(spmatch[3].toString());
+                            boolean b3 = Boolean.parseBoolean(tpmatch[3].toString());
+                            boolean b4 = b1 && b2 && b3;
+                            bwj.write(fpmatch[0].toString() + " , " + fpmatch[2].toString() + " , " + spmatch[2].toString() + " , "+tpmatch[2].toString()+" , " + b4 + "\n");
+                        }
+
                     }
                 }
             }
@@ -113,4 +288,4 @@ public class simulatedJoin {
             
         }catch(Exception e){e.printStackTrace();}
     }
-}
+    }}
