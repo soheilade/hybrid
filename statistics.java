@@ -40,6 +40,5 @@ public class statistics {
             f_value=true_val/(false_value+true_val);
         }catch(Exception e){e.printStackTrace();}
         return f_value;
-    }
-    
+    }    
 }
