@@ -1,0 +1,8 @@
+ sor<-read.table("sojoin.txt")
+ names(sor)=c("tp1","tp2","join")
+ par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)
+ plot(sor$tp1,pch=19,col=1,type="o",main="so join",ylab="freshness",xlab="queries")
+ points(sor$tp2*sor$tp1,pch=19,col=4,type="o")
+ points(sor$tp2,pch=19,col=3,type="o")
+ points(sor$join,pch=19,col=2,type="o")
+ legend("topright", inset=c(-0.2,0), legend=c("tp1","join","tp2","pred"), text.col=c("1","2","3","4"))
