@@ -46,6 +46,8 @@ public class index {
         s.AVGSOUsingIndex();
         System.out.println("find all S-S joins among triple patterns");
         s.AVGSSUsingIndex();
+        //bounded object experiment
+        s.SScardwithboundedObj();
     }
 
     public void BuildIndex(String filePath) {
@@ -65,6 +67,40 @@ public class index {
             BuildChSet();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+    public void SSCardUsingCS(){
+        Iterator tpit = tpS.keySet().iterator();
+        //iterating through all subjects and their correspoding list of tps
+        while (tpit.hasNext()) {
+            Node CurSubj;
+            //current subject that we are gonna extract all its tps and join them
+            CurSubj = (Node) tpit.next();
+            //get the corresponding arraylist of all tps that have this subject
+            ArrayList<Node[]> tpswithcommonS = (ArrayList<Node[]>) tpS.get(CurSubj);
+            Node[] curtp = new Node[3], prevtp = new Node[3];
+            //iterate through array list and join them pairwise
+            for (int c = 0; c < tpswithcommonS.size(); c++) {
+                prevtp = curtp.clone();
+                curtp = (Node[]) tpswithcommonS.get(c);
+                if (prevtp[0] == null) {
+                    continue;
+                }
+                //*double realf = computeRealOOJoinFreshness(curtp, prevtp);
+                //iterate through SPCSIndex sum count of subjects that their predicate list contain prevtp and curtp
+                Iterator it = SPCSIndex.keySet().iterator();
+                double sum = 0;
+                while (it.hasNext()) {
+                    //computing curtp freshness from OP using intermediate results
+                    NodeArrayWrapper tempPredList = (NodeArrayWrapper) it.next();
+                    if(tempPredList.getdata().containsKey(prevtp[1]) && tempPredList.getdata().containsKey(curtp[1])){
+                    NodeArrayWrapper subjList = (NodeArrayWrapper) SPCSIndex.get(tempPredList);
+                    sum+=subjList.getdata().size();
+                    }
+                }
+                //sum is cardinality
+                System.out.println(prevtp[0].toN3() + "," + prevtp[1].toN3() + "," + prevtp[2].toN3() +","+ curtp[0].toN3() + "," + curtp[1].toN3() + "," + curtp[2].toN3() + "," + sum );
+            }
         }
     }
     public void addToMap(HashMap <NodeArrayWrapper, NodeArrayWrapper> map, NodeArrayWrapper predList, Node subj){
@@ -101,6 +137,52 @@ public class index {
                 addToMap(SPCSIndex, (NodeArrayWrapper)SPcs.get(curSubj),curSubj);
             }           
         }catch(Exception e){e.printStackTrace();}
+    }
+    public void SScardwithboundedObj(){
+         Iterator tpit = tpS.keySet().iterator();
+        //iterating through all subjects and their correspoding list of tps
+        while (tpit.hasNext()) {
+            Node CurSubj;
+            //current subject that we are gonna extract all its tps and join them
+            CurSubj = (Node) tpit.next();
+            //get the corresponding arraylist of all tps that have this subject
+            ArrayList<Node[]> tpswithcommonS = (ArrayList<Node[]>) tpS.get(CurSubj);
+            Node[] curtp = new Node[3], prevtp = new Node[3];
+            //iterate through array list and join them pairwise
+            for (int c = 0; c < tpswithcommonS.size(); c++) {
+                prevtp = curtp.clone();
+                curtp = (Node[]) tpswithcommonS.get(c);
+                if (prevtp[0] == null) {
+                    continue;
+                }
+                //*double realf = computeRealOOJoinFreshness(curtp, prevtp);
+                //iterate through SPCSIndex sum count of subjects that their predicate list contain prevtp and curtp
+                Iterator it = SPCSIndex.keySet().iterator();
+                double sum = 0;
+                while (it.hasNext()) {
+                    //computing curtp freshness from OP using intermediate results
+                    NodeArrayWrapper tempPredList = (NodeArrayWrapper) it.next();
+                    if(tempPredList.getdata().containsKey(prevtp[1]) && tempPredList.getdata().containsKey(curtp[1])){//for all subjects whose predicate list is a superset of query
+                        double prevPredCount = Double.valueOf(tempPredList.getdata().get(prevtp[1]).toString());
+                        double curPredCount = Double.valueOf(tempPredList.getdata().get(curtp[1]).toString());
+                        NodeArrayWrapper subjList = (NodeArrayWrapper) SPCSIndex.get(tempPredList);
+                        double distinctScount = (double)subjList.getdata().size();
+                        double m=1,o=1;
+                        double PrevConditionalSel=1.0/prevPredCount;
+                        double curConditionalSel=1.0/curPredCount;
+                        if(prevtp[2] instanceof Resource)
+                            o=Math.min(o, PrevConditionalSel);
+                        else m=m*prevPredCount/distinctScount;
+                        if(curtp[2] instanceof Resource)
+                            o=Math.min(o, curConditionalSel);
+                        else m=m*curPredCount/distinctScount;
+                        sum+=distinctScount*m*o;
+                    }
+                }
+                //sum is cardinality
+                System.out.println(prevtp[0].toN3() + "," + prevtp[1].toN3() + "," + prevtp[2].toN3() +","+ curtp[0].toN3() + "," + curtp[1].toN3() + "," + curtp[2].toN3() + "," + sum );
+            }
+        }
     }
     public void insertToP(Node[] next){
         String predicateStat= (String) P.get(next[1]);
