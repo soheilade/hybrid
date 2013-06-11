@@ -30,7 +30,9 @@ public class index {
     HashMap<Node, HashMap<Node, String>> OP = new HashMap<Node, HashMap<Node, String>>();
     Map<Node, List<Node[]>> tpS = new HashMap<Node, List<Node[]>>();
     Map<Node, List<Node[]>> tpO = new HashMap<Node, List<Node[]>>();
-
+    HashMap<Node, NodeArrayWrapper> SPcs = new HashMap<Node, NodeArrayWrapper>();
+    HashMap<NodeArrayWrapper,NodeArrayWrapper> SPCSIndex = new HashMap<NodeArrayWrapper,NodeArrayWrapper>();
+    
     public static void main(String[] args) {
         index s = new index();
         //build index
@@ -54,15 +56,51 @@ public class index {
             while (nxp.hasNext()) {
                 Node[] next = nxp.next();
                 insertToSP(next);
+                insertToSPcs(next);                
                 //insertToPO(next);//we never have intermediate results based on P
                 insertToP(next);//but we need aggregate predicate freshness
                 //insertToOS(next);//we never need to extract intermediate O based on S
                 insertToOP(next);//we for o-o join and part of s-o join we need to extract intermediate O based on p
             }
-            aggregateIndex();
+            BuildChSet();
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    public void addToMap(HashMap <NodeArrayWrapper, NodeArrayWrapper> map, NodeArrayWrapper predList, Node subj){
+        if (!map.containsKey(predList)) {
+            map.put(predList, new NodeArrayWrapper());
+        } else {
+            Iterator pit = map.keySet().iterator();
+            Object tempPList = null;
+            while (pit.hasNext()) {
+                tempPList = pit.next();
+                if (tempPList.equals(predList)) {
+                    break;
+                }
+            }
+            HashMap naw = ((NodeArrayWrapper) tempPList).getdata();
+            Iterator tempit = naw.keySet().iterator();
+            while (tempit.hasNext()) {
+                Node tempPred = (Node) tempit.next();
+                int ExistingPredMultiplicity = Integer.valueOf(naw.get(tempPred).toString());
+                int NewPredMulti = Integer.valueOf(predList.getdata().get(tempPred).toString());
+                predList.getdata().put(tempPred, ExistingPredMultiplicity + NewPredMulti);
+            }
+        }
+        HashMap subjList = map.get(predList).getdata();
+        subjList.put(subj, 1);
+        map.remove(predList);
+        map.put(predList, new NodeArrayWrapper(subjList));//adding subject to subject hashmap of corresponding predicate hashmap(key)
+    }
+    public void BuildChSet(){
+        try {
+            Iterator SPCSit = SPcs.keySet().iterator();
+            while(SPCSit.hasNext()){
+                Node curSubj = (Node)SPCSit.next();
+                addToMap(SPCSIndex, (NodeArrayWrapper)SPcs.get(curSubj),curSubj);
+            }           
+        }catch(Exception e){e.printStackTrace();}
     }
     public void insertToP(Node[] next){
         String predicateStat= (String) P.get(next[1]);
@@ -84,6 +122,26 @@ public class index {
                 }
             }
         }
+        public void insertToSPcs(Node[] next){
+        NodeArrayWrapper n=(NodeArrayWrapper) SPcs.get(next[0]);
+        HashMap predicateList=new HashMap();// = n.getdata();
+        if (n == null) {
+            predicateList = new HashMap();
+            predicateList.put(next[1], "1");            
+        } else {
+            predicateList=n.getdata();  
+            Object predCount = predicateList.get(next[1]);
+            if (predCount==null)
+                predicateList.put(next[1], "1");  
+            else{
+                int c=Integer.valueOf(predCount.toString());
+                c++;
+                predicateList.put(next[1], c); 
+            }            
+        }
+        NodeArrayWrapper res=new  NodeArrayWrapper(predicateList);
+        SPcs.put(next[0], res);
+    }
     public void insertToOP(Node[] next) {
         HashMap predicateList = (HashMap) OP.get(next[2]);
         if (predicateList == null) {
